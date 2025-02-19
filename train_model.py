@@ -54,12 +54,13 @@ X_train, X_test, y_train, y_test = train_test_split(X_sm, y_sm, test_size=0.2, r
 log_model = LogisticRegression()
 log_model.fit(X_train, y_train)
 
+# # Dự đoán trên tập test
+# y_pred_log = log_model.predict(X_test)
+
 # Lưu mô hình, scaler và danh sách cột chuẩn hóa
 pickle.dump(log_model, open('model.pkl', 'wb'))
 pickle.dump(scaler, open('scaler.pkl', 'wb'))
 pickle.dump(scaler_columns, open('scaler_columns.pkl', 'wb'))  # Lưu danh sách cột chuẩn hóa
 pickle.dump(X_train.columns.tolist(), open('model_columns.pkl', 'wb'))  # Lưu danh sách cột của mô hình
-
-# print(df)
 
 print("✅ Mô hình đã được lưu vào model.pkl")
