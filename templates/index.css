@@ -1,0 +1,98 @@
+/* (CSS như trước, giữ nguyên) */
+body {
+  font-family: "Roboto", sans-serif; /* Font chữ hiện đại, dễ đọc */
+  margin: 0; /* Loại bỏ margin mặc định */
+  padding: 0;
+  background-color: #f4f7f9; /* Màu nền nhạt, dễ chịu */
+  color: #333; /* Màu chữ tối, tương phản tốt */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background-color: white;
+  border-radius: 10px; /* Góc bo tròn */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+  padding: 40px; /* Khoảng cách đệm lớn */
+  width: 90%; /* Chiều rộng responsive */
+  max-width: 600px; /* Giới hạn chiều rộng tối đa */
+  text-align: center; /* Căn giữa nội dung */
+}
+
+h2 {
+  color: #2980b9; /* Màu xanh dương đậm, tạo điểm nhấn */
+  margin-bottom: 30px; /* Khoảng cách dưới lớn hơn */
+  font-weight: 500; /* Chữ đậm vừa phải */
+  font-size: 1.75rem;
+}
+h3 {
+  color: #2980b9;
+  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+form {
+  display: grid; /* Sử dụng Grid Layout */
+  grid-template-columns: 1fr; /* Chia cột tự động */
+  gap: 15px; /* Khoảng cách giữa các ô */
+  text-align: left; /* Căn trái nội dung trong ô */
+}
+
+label {
+  font-weight: 500; /* Chữ đậm cho label */
+  color: #555;
+  display: block; /* Để label chiếm toàn bộ chiều rộng */
+  margin-bottom: 5px; /* Khoảng cách nhỏ giữa label và input */
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  padding: 12px 15px; /* Tăng khoảng cách đệm */
+  border: 1px solid #ccc; /* Viền xám nhạt */
+  border-radius: 5px; /* Góc bo tròn */
+  font-size: 1rem; /* Kích thước chữ lớn hơn */
+  box-sizing: border-box; /* Đảm bảo padding không làm tăng kích thước */
+  transition: border-color 0.3s ease; /* Hiệu ứng chuyển màu viền */
+}
+
+input[type="text"]:focus,
+select:focus {
+  border-color: #2980b9; /* Màu viền khi focus */
+  outline: none; /* Loại bỏ outline mặc định */
+}
+
+button[type="submit"] {
+  background-color: #2980b9; /* Màu nền nút */
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer; /* Con trỏ hình bàn tay */
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu */
+  width: 100%; /* Nút chiếm toàn bộ chiều rộng */
+  margin-top: 15px;
+}
+
+button[type="submit"]:hover {
+  background-color: #1c689e; /* Màu nền khi hover */
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px; /* Khoảng cách đệm nhỏ hơn */
+  }
+}
+/* Thêm CSS cho icon */
+label i {
+  margin-right: 8px; /* Khoảng cách giữa icon và chữ */
+  color: #2980b9; /* Màu icon */
+}
+button[type="submit"] i {
+  margin-right: 8px; /* Khoảng cách giữa icon và chữ trong nút */
+}
