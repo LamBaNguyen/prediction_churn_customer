@@ -109,6 +109,20 @@
           button[type="submit"] i {
             margin-right: 8px; /* Khoảng cách giữa icon và chữ trong nút */
         }
+
+        /* CSS cho footer */
+        footer {
+            position: fixed; /* Đặt vị trí cố định */
+            bottom: 0; /* Căn dưới */
+            right: 0; /* Căn phải */
+            width: 100%; /* Chiếm toàn bộ chiều rộng */
+            text-align: right; /* Căn phải nội dung */
+            padding: 10px 20px; /* Khoảng cách đệm */
+            background-color: #f8f9fa; /* Màu nền nhạt */
+            border-top: 1px solid #dee2e6; /* Đường viền trên */
+            font-size: 0.9rem; /* Kích thước chữ nhỏ hơn */
+            color: #6c757d; /* Màu chữ xám */
+        }
     </style>
 </head>
 <body>
@@ -230,5 +244,8 @@
 
         <h3>{{ prediction_text }}</h3>
     </div>
+    <footer>
+        © 2025 Churn Prediction built by NBL.
+    </footer>
 </body>
 </html>
