@@ -128,7 +128,7 @@
 <body>
     <div class="container">
         <h2><i class="fas fa-user-minus"></i> Dự đoán Churn của khách hàng</h2>
-
+        <h3>{{ prediction_text }}</h3>
         <form action="/predict" method="post">
             <label><i class="fas fa-venus-mars"></i> Giới tính:</label>
             <select name="gender">
@@ -242,7 +242,7 @@
             <button type="submit"><i class="fas fa-search"></i> Dự đoán</button>
         </form>
 
-        <h3>{{ prediction_text }}</h3>
+        
     </div>
     <footer>
         © 2025 Churn Prediction built by NBL.
