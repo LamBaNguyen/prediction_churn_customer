@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from imblearn.over_sampling import SMOTE
 from sklearn.preprocessing import MinMaxScaler
 
@@ -50,6 +51,10 @@ X_sm, y_sm = smote.fit_resample(X, y)
 
 X_train, X_test, y_train, y_test = train_test_split(X_sm, y_sm, test_size=0.2, random_state=42, stratify=y_sm)
 
+# Mô hình RandomForestClassifier
+rf_model = RandomForestClassifier()
+rf_model.fit(X_train, y_train)
+
 # Mô hình Logistic Regression
 log_model = LogisticRegression()
 log_model.fit(X_train, y_train)
@@ -58,7 +63,8 @@ log_model.fit(X_train, y_train)
 # y_pred_log = log_model.predict(X_test)
 
 # Lưu mô hình, scaler và danh sách cột chuẩn hóa
-pickle.dump(log_model, open('model.pkl', 'wb'))
+pickle.dump(log_model, open('model_log.pkl', 'wb'))
+pickle.dump(rf_model, open('model_rf.pkl', 'wb'))
 pickle.dump(scaler, open('scaler.pkl', 'wb'))
 pickle.dump(scaler_columns, open('scaler_columns.pkl', 'wb'))  # Lưu danh sách cột chuẩn hóa
 pickle.dump(X_train.columns.tolist(), open('model_columns.pkl', 'wb'))  # Lưu danh sách cột của mô hình

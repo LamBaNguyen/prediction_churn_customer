@@ -9,7 +9,8 @@ import json
 app = Flask(__name__)
 
 # Load model, scaler, and column names
-model = pickle.load(open('model.pkl', 'rb'))
+model = pickle.load(open('model_log.pkl', 'rb'))
+model_rf = pickle.load(open('model_rf.pkl', 'rb'))
 scaler = pickle.load(open('scaler.pkl', 'rb'))
 scaler_columns = pickle.load(open('scaler_columns.pkl', 'rb'))
 model_columns = pickle.load(open('model_columns.pkl', 'rb'))  # Columns *after* one-hot encoding
@@ -53,6 +54,9 @@ def predict():
         user_input = request.form.to_dict()
         df_input = pd.DataFrame([user_input])
 
+        # Lấy model được chọn từ form
+        selected_model = request.form.get('model_choice', 'logistic')  # Mặc định là Logistic Regression
+
         # 2. Tiền xử lý dữ liệu *trước* one-hot encoding
         df_input = preprocess_input(df_input.copy())
 
@@ -71,50 +75,73 @@ def predict():
         # 6. Scaling (chỉ áp dụng cho các cột cần scale)
         df_input[scaler_columns] = scaler.transform(df_input[scaler_columns])
 
-        # 7. Dự đoán
-        prediction = model.predict(df_input)[0]
-        probabilities = model.predict_proba(df_input)[0]
-        probability = probabilities[1] if prediction == 1 else probabilities[0]
-        probability_percent = round(probability * 100, 2)
+        if selected_model == 'logistic':
+            # 7.1 Dự đoán (LogisticRegression)
+            prediction = model.predict(df_input)[0]
+            probabilities = model.predict_proba(df_input)[0]
+            probability = probabilities[1] if prediction == 1 else probabilities[0]
+            probability_percent = round(probability * 100, 2)
+            result_message = "Khách hàng có khả năng RỜI ĐI!" if prediction == 1 else "Khách hàng sẽ Ở LẠI!"
+            model_name = "Logistic Regression"
+        elif selected_model == 'random_forest':
+            # 7.2 Dự đoán (RandomForestClassifier)
+            prediction = model_rf.predict(df_input)[0]
+            probabilities = model_rf.predict_proba(df_input)[0]
+            probability = probabilities[1] if prediction == 1 else probabilities[0]
+            probability_percent = round(probability * 100, 2)
+            result_message = "Khách hàng có khả năng RỜI ĐI!" if prediction == 1 else "Khách hàng sẽ Ở LẠI!"
+            model_name = "Random Forest"
+        else:
+            # Trường hợp không hợp lệ (nên có xử lý lỗi tốt hơn)
+            return render_template('index.html', prediction_text="Lỗi: Mô hình không hợp lệ.")
 
+        # Truyền tất cả thông tin cần thiết cho template
+        return render_template(
+            'index.html',
+            prediction_text=f"{model_name}: Có {probability_percent}% khả năng {result_message}",
+            selected_model=selected_model  # Truyền model đã chọn để giữ trạng thái trên frontend
+        )
         # 8. Tính ảnh hưởng của từng thuộc tính (Feature Importance)
-        feature_importance = abs(model.coef_[0])  # Trọng số của Logistic Regression
-        feature_impact = {col: round(imp, 4) for col, imp in zip(df_input.columns, feature_importance)}
+        # feature_importance = abs(model.coef_[0])  # Trọng số của Logistic Regression
+        # feature_impact = {col: round(imp, 4) for col, imp in zip(df_input.columns, feature_importance)}
 
         # ✅ Chỉ lấy những feature mà khách hàng đã nhập (giá trị khác 0)
-        filtered_impact = {feature: impact for feature, impact in feature_impact.items() \
-                        #    if df_input[feature].values[0] != 0\
-                            }
+        # filtered_impact = {feature: impact for feature, impact in feature_impact.items() \
+        #                 #    if df_input[feature].values[0] != 0\
+        #                     }
 
-        # ✅ **Sắp xếp theo mức độ ảnh hưởng giảm dần**
-        sorted_impact = sorted(filtered_impact.items(), key=lambda x: x[1], reverse=True)
+        # # ✅ **Sắp xếp theo mức độ ảnh hưởng giảm dần**
+        # sorted_impact = sorted(filtered_impact.items(), key=lambda x: x[1], reverse=True)
 
-        # 9. Tạo biểu đồ Pie Chart với Plotly
-        labels = [item[0] for item in sorted_impact]
-        values = [item[1] for item in sorted_impact]
-        fig_bar = px.bar(
-            x=values, 
-            y=labels,  # Để cột nằm dọc, ta dùng y làm tên thuộc tính
-            orientation='h',  # Biểu đồ cột nằm ngang
-            # title="Mức độ ảnh hưởng của tất cả các thuộc tính đến quyết định dự đoán",
-            labels={'x': "Mức độ ảnh hưởng", 'y': "Yếu tố"},
-            text_auto=True
-        )
+        # # 9. Tạo biểu đồ Pie Chart với Plotly
+        # labels = [item[0] for item in sorted_impact]
+        # values = [item[1] for item in sorted_impact]
+        # fig_bar = px.bar(
+        #     x=values, 
+        #     y=labels,  # Để cột nằm dọc, ta dùng y làm tên thuộc tính
+        #     orientation='h',  # Biểu đồ cột nằm ngang
+        #     # title="Mức độ ảnh hưởng của tất cả các thuộc tính đến quyết định dự đoán",
+        #     labels={'x': "Mức độ ảnh hưởng", 'y': "Yếu tố"},
+        #     text_auto=True
+        # )
         # fig_bar.update_layout(
         #     width=1000,  # Chiều rộng
         #     height=600,  # Chiều cao
         #     font=dict(size=14)  # Cỡ chữ lớn hơn
         # )
-        graph_json = json.dumps(fig_bar, cls=plotly.utils.PlotlyJSONEncoder)
+        # graph_json = json.dumps(fig_bar, cls=plotly.utils.PlotlyJSONEncoder)
 
         # 10. Hiển thị kết quả
-        result_message = "Khách hàng có khả năng RỜI ĐI!" if prediction == 1 else "Khách hàng sẽ Ở LẠI!"
-        return render_template(
-            'index.html',
-            prediction_text=f"Có {probability_percent}% khả năng {result_message}",
-            feature_impact=sorted_impact,
-            graph_json=graph_json  # Truyền biểu đồ vào HTML
-        )
+        # result_message = "Khách hàng có khả năng RỜI ĐI!" if prediction == 1 else "Khách hàng sẽ Ở LẠI!"
+        # result_message_rf = "Khách hàng có khả năng RỜI ĐI!" if prediction_rf == 1 else "Khách hàng sẽ Ở LẠI!"
+
+        # return render_template(
+        #     'index.html',
+        #     prediction_text=f"Model Logistic: Có {probability_percent}% khả năng {result_message}",
+        #     prediction_rf_text=f"Model Random Forest: Có {probability_rf_percent}% khả năng {result_message_rf}"
+        #     # feature_impact=sorted_impact,
+        #     # graph_json=graph_json  # Truyền biểu đồ vào HTML
+        # )
 
     except Exception as e:
         print(f"Error during prediction: {e}")  # Ghi log lỗi

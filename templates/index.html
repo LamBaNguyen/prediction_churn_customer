@@ -71,7 +71,7 @@
             gap: 15px;
             /* Khoảng cách giữa các ô */
             text-align: left;
-            /* Căn trái nội dung trong ô */
+            position: relative;
         }
 
         label {
@@ -183,9 +183,28 @@
             height: 700px;
             margin: auto;
         } */
-        a{
+        a {
             color: #333;
             text-decoration: none;
+        }
+
+        .form-row {
+            display: flex;
+            /* Để label và select nằm trên cùng một hàng */
+            flex-direction: column;
+            /* Xếp chồng label và select theo chiều dọc trên responsive */
+            align-items: flex-end;
+            /* Căn chỉnh các phần tử con sang trái */
+        }
+
+        .form-row label {
+            margin-bottom: 5px;
+            /* Khoảng cách giữa label và select */
+        }
+
+        .form-row select {
+            width: 35%;
+            /* Để select chiếm hết chiều rộng */
         }
     </style>
 </head>
@@ -195,21 +214,32 @@
         <h2><i class="fas fa-user-minus"></i> Dự đoán Churn của khách hàng</h2>
         {% if prediction_text %}
         <h3>{{ prediction_text }}</h3>
+        <!-- <h3>{{ prediction_rf_text }}</h3> -->
 
-        {% if graph_json %}
+        <!-- {% if graph_json %}
         <div id="feature_importance_bar"></div>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script>
             var barChart = {{ graph_json | safe }};
             Plotly.newPlot('feature_importance_bar', barChart.data, barChart.layout);
         </script>
-        {% endif %}
+        {% endif %} -->
 
         <!-- Nút quay lại form -->
         <button type="submit" onclick="resetForm()">Dự đoán lại</button>
 
         {% else %}
         <form action="/predict" method="post">
+            <!-- Thêm một radio button để chọn model -->
+            <div class="form-row"> <!-- Thêm div để chứa label và select -->
+                <label for="model_choice"><i class="fas fa-project-diagram"></i> Mô hình dự đoán:</label>
+                <select name="model_choice" id="model_choice">
+                    <option value="logistic" {% if selected_model=='logistic' or not selected_model %}selected{% endif
+                        %}>Logistic Regression</option>
+                    <option value="random_forest" {% if selected_model=='random_forest' %}selected{% endif %}>Random
+                        Forest</option>
+                </select>
+            </div>
             <label><i class="fas fa-venus-mars"></i> Giới tính:</label>
             <select name="gender">
                 <option value="Male">Nam</option>
@@ -329,7 +359,7 @@
         }
     </script>
     <footer>
-       <a href="https://github.com/LamBaNguyen/prediction_churn_customer"`> © 2025 Churn Prediction built by NBL.</a>
+        <a href="https://github.com/LamBaNguyen/prediction_churn_customer" `> © 2025 Churn Prediction built by NBL.</a>
     </footer>
 </body>
 
