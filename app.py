@@ -82,20 +82,30 @@ def predict():
         feature_impact = {col: round(imp, 4) for col, imp in zip(df_input.columns, feature_importance)}
 
         # ✅ Chỉ lấy những feature mà khách hàng đã nhập (giá trị khác 0)
-        filtered_impact = {feature: impact for feature, impact in feature_impact.items() if df_input[feature].values[0] != 0}
+        filtered_impact = {feature: impact for feature, impact in feature_impact.items() \
+                        #    if df_input[feature].values[0] != 0\
+                            }
 
-        # ✅ Lấy top 5 yếu tố ảnh hưởng nhất
-        sorted_impact = sorted(filtered_impact.items(), key=lambda x: x[1], reverse=True)[:5]
+        # ✅ **Sắp xếp theo mức độ ảnh hưởng giảm dần**
+        sorted_impact = sorted(filtered_impact.items(), key=lambda x: x[1], reverse=True)
 
         # 9. Tạo biểu đồ Pie Chart với Plotly
         labels = [item[0] for item in sorted_impact]
         values = [item[1] for item in sorted_impact]
-        fig = px.pie(
-            names=labels, 
-            values=values, 
-            # title="Top 5 yếu tố ảnh hưởng đến quyết định dự đoán",
+        fig_bar = px.bar(
+            x=values, 
+            y=labels,  # Để cột nằm dọc, ta dùng y làm tên thuộc tính
+            orientation='h',  # Biểu đồ cột nằm ngang
+            # title="Mức độ ảnh hưởng của tất cả các thuộc tính đến quyết định dự đoán",
+            labels={'x': "Mức độ ảnh hưởng", 'y': "Yếu tố"},
+            text_auto=True
         )
-        graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+        # fig_bar.update_layout(
+        #     width=1000,  # Chiều rộng
+        #     height=600,  # Chiều cao
+        #     font=dict(size=14)  # Cỡ chữ lớn hơn
+        # )
+        graph_json = json.dumps(fig_bar, cls=plotly.utils.PlotlyJSONEncoder)
 
         # 10. Hiển thị kết quả
         result_message = "Khách hàng có khả năng RỜI ĐI!" if prediction == 1 else "Khách hàng sẽ Ở LẠI!"

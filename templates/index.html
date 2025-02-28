@@ -176,21 +176,39 @@
             color: #6c757d;
             /* Màu chữ xám */
         }
+
+        /* #feature_importance_bar {
+            width: 100%;
+            max-width: 1500px;
+            height: 700px;
+            margin: auto;
+        } */
+        a{
+            color: #333;
+            text-decoration: none;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h2><i class="fas fa-user-minus"></i> Dự đoán Churn của khách hàng</h2>
+        {% if prediction_text %}
         <h3>{{ prediction_text }}</h3>
+
         {% if graph_json %}
-        <div id="feature_importance_chart"></div>
+        <div id="feature_importance_bar"></div>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <script>
-            var graph = {{ graph_json | safe }};
-            Plotly.newPlot('feature_importance_chart', graph.data, graph.layout);
+            var barChart = {{ graph_json | safe }};
+            Plotly.newPlot('feature_importance_bar', barChart.data, barChart.layout);
         </script>
         {% endif %}
+
+        <!-- Nút quay lại form -->
+        <button type="submit" onclick="resetForm()">Dự đoán lại</button>
+
+        {% else %}
         <form action="/predict" method="post">
             <label><i class="fas fa-venus-mars"></i> Giới tính:</label>
             <select name="gender">
@@ -303,11 +321,15 @@
 
             <button type="submit"><i class="fas fa-search"></i> Dự đoán</button>
         </form>
-
-
+        {% endif %}
     </div>
+    <script>
+        function resetForm() {
+            window.location.href = "/";
+        }
+    </script>
     <footer>
-        © 2025 Churn Prediction built by NBL.
+       <a href="https://github.com/LamBaNguyen/prediction_churn_customer"`> © 2025 Churn Prediction built by NBL.</a>
     </footer>
 </body>
 
