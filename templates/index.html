@@ -4,27 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dự đoán Churn</title>
+    <title>Dự đoán Churn và Phân khúc Khách hàng</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Thêm Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
         integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <!-- <link rel="stylesheet" href="index.css"> -->
     <style>
-        /* (CSS như trước, giữ nguyên) */
         body {
             font-family: 'Roboto', sans-serif;
-            /* Font chữ hiện đại, dễ đọc */
             margin: 0;
-            /* Loại bỏ margin mặc định */
             padding: 0;
             background-color: #f4f7f9;
-            /* Màu nền nhạt, dễ chịu */
             color: #333;
-            /* Màu chữ tối, tương phản tốt */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -34,158 +27,145 @@
         .container {
             background-color: white;
             border-radius: 10px;
-            /* Góc bo tròn */
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            /* Đổ bóng nhẹ */
             padding: 40px;
-            /* Khoảng cách đệm lớn */
             width: 90%;
-            /* Chiều rộng responsive */
-            max-width: 600px;
-            /* Giới hạn chiều rộng tối đa */
-            text-align: center;
-            /* Căn giữa nội dung */
+            max-width: 800px;
+            /* Tăng chiều rộng container */
+        }
+
+        /* Tabs Styles */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #ddd;
+            border: 1px solid #ccc;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background-color: #2980b9;
+            color: white;
+            border-bottom: none;
+        }
+
+        /* Content Styles */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         h2 {
             color: #2980b9;
-            /* Màu xanh dương đậm, tạo điểm nhấn */
             margin-bottom: 30px;
-            /* Khoảng cách dưới lớn hơn */
             font-weight: 500;
-            /* Chữ đậm vừa phải */
             font-size: 1.75rem;
+            text-align: center;
+            /* Căn giữa tiêu đề */
         }
 
         h3 {
             color: #2980b9;
             margin-bottom: 30px;
             font-weight: 500;
+            text-align: center;
         }
 
         form {
             display: grid;
-            /* Sử dụng Grid Layout */
             grid-template-columns: 1fr;
-            /* Chia cột tự động */
             gap: 15px;
-            /* Khoảng cách giữa các ô */
             text-align: left;
-            position: relative;
         }
 
         label {
             font-weight: 500;
-            /* Chữ đậm cho label */
             color: #555;
             display: block;
-            /* Để label chiếm toàn bộ chiều rộng */
             margin-bottom: 5px;
-            /* Khoảng cách nhỏ giữa label và input */
         }
 
         input[type="text"],
-        select {
+        select,
+        input[type="number"] {
             width: 100%;
-            padding: 12px 15px;
-            /* Tăng khoảng cách đệm */
+            padding: 10px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
-            /* Viền xám nhạt */
-            border-radius: 5px;
-            /* Góc bo tròn */
-            font-size: 1rem;
-            /* Kích thước chữ lớn hơn */
+            border-radius: 4px;
             box-sizing: border-box;
-            /* Đảm bảo padding không làm tăng kích thước */
-            transition: border-color 0.3s ease;
-            /* Hiệu ứng chuyển màu viền */
+            font-size: 16px;
         }
 
-        input[type="text"]:focus,
-        select:focus {
-            border-color: #2980b9;
-            /* Màu viền khi focus */
-            outline: none;
-            /* Loại bỏ outline mặc định */
+        select {
+            height: 40px;
+            /* Điều chỉnh chiều cao cho select */
         }
 
-        button[type="submit"] {
+        button {
             background-color: #2980b9;
-            /* Màu nền nút */
             color: white;
             padding: 12px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            /* Con trỏ hình bàn tay */
-            font-size: 1rem;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
-            /* Hiệu ứng chuyển màu */
-            width: 100%;
-            /* Nút chiếm toàn bộ chiều rộng */
-            margin-top: 15px;
+            font-size: 18px;
         }
 
-        button[type="submit"]:hover {
+        button:hover {
             background-color: #1c689e;
-            /* Màu nền khi hover */
         }
 
-        /* Responsive cho màn hình nhỏ */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                /* Khoảng cách đệm nhỏ hơn */
-            }
-        }
-
-        /* Thêm CSS cho icon */
-        label i {
-            margin-right: 8px;
-            /* Khoảng cách giữa icon và chữ */
-            color: #2980b9;
-            /* Màu icon */
-        }
-
-        button[type="submit"] i {
-            margin-right: 8px;
-            /* Khoảng cách giữa icon và chữ trong nút */
-        }
-
-        /* CSS cho footer */
         footer {
             position: fixed;
-            /* Đặt vị trí cố định */
             bottom: 0;
-            /* Căn dưới */
             right: 0;
-            /* Căn phải */
             width: 100%;
-            /* Chiếm toàn bộ chiều rộng */
-            text-align: right;
-            /* Căn phải nội dung */
-            padding: 10px 20px;
-            /* Khoảng cách đệm */
             background-color: #f8f9fa;
-            /* Màu nền nhạt */
-            border-top: 1px solid #dee2e6;
-            /* Đường viền trên */
-            font-size: 0.9rem;
-            /* Kích thước chữ nhỏ hơn */
+            text-align: right;
+            padding: 10px;
+            font-size: 14px;
             color: #6c757d;
-            /* Màu chữ xám */
         }
 
-        /* #feature_importance_bar {
-            width: 100%;
-            max-width: 1500px;
-            height: 700px;
-            margin: auto;
-        } */
         a {
             color: #333;
             text-decoration: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            /* Điều chỉnh kích thước chữ và khoảng cách cho phù hợp với màn hình nhỏ */
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            label {
+                font-size: 0.9rem;
+            }
+
+            input[type="text"],
+            select,
+            input[type="number"] {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 16px;
+            }
         }
 
         .form-row {
@@ -211,156 +191,205 @@
 
 <body>
     <div class="container">
-        <h2><i class="fas fa-user-minus"></i> Dự đoán Churn của khách hàng</h2>
-        {% if prediction_text %}
-        <h3>{{ prediction_text }}</h3>
-        <!-- <h3>{{ prediction_rf_text }}</h3> -->
+        <div class="tabs">
+            <div class="tab {% if active_form == 'churn' %}active{% endif %}" data-tab="churn">Dự đoán Churn</div>
+            <div class="tab {% if active_form == 'segmentation' %}active{% endif %}" data-tab="segmentation">Phân khúc Khách hàng</div>
+        </div>
 
-        <!-- {% if graph_json %}
-        <div id="feature_importance_bar"></div>
-        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-        <script>
-            var barChart = {{ graph_json | safe }};
-            Plotly.newPlot('feature_importance_bar', barChart.data, barChart.layout);
-        </script>
-        {% endif %} -->
+        <div id="churn" class="tab-content {% if active_form == 'churn' %}active{% endif %}">
+            <h2><i class="fas fa-user-minus"></i> Dự đoán Churn của Khách hàng</h2>
+            {% if prediction_text %}
+            <h3>{{ prediction_text }}</h3>
+            {% endif %}
 
-        <!-- Nút quay lại form -->
-        <button type="submit" onclick="resetForm()">Dự đoán lại</button>
+            <form id='predict' action="/predict-churn" method="post">
+                <!-- Các trường nhập liệu cho dự đoán churn -->
+                <div class="form-row"> <!-- Thêm div để chứa label và select -->
+                    <label for="model_choice"><i class="fas fa-project-diagram"></i> Mô hình dự đoán:</label>
+                    <select name="model_choice" id="model_choice">
+                        <option value="logistic" {% if selected_model=='logistic' or not selected_model %}selected{%
+                            endif %}>Logistic Regression</option>
+                        <option value="random_forest" {% if selected_model=='random_forest' %}selected{% endif %}>Random
+                            Forest</option>
+                    </select>
+                </div>
 
-        {% else %}
-        <form action="/predict" method="post">
-            <!-- Thêm một radio button để chọn model -->
-            <div class="form-row"> <!-- Thêm div để chứa label và select -->
-                <label for="model_choice"><i class="fas fa-project-diagram"></i> Mô hình dự đoán:</label>
-                <select name="model_choice" id="model_choice">
-                    <option value="logistic" {% if selected_model=='logistic' or not selected_model %}selected{% endif
-                        %}>Logistic Regression</option>
-                    <option value="random_forest" {% if selected_model=='random_forest' %}selected{% endif %}>Random
-                        Forest</option>
+                <label><i class="fas fa-venus-mars"></i> Giới tính:</label>
+                <select name="gender">
+                    <option value="Male">Nam</option>
+                    <option value="Female">Nữ</option>
                 </select>
-            </div>
-            <label><i class="fas fa-venus-mars"></i> Giới tính:</label>
-            <select name="gender">
-                <option value="Male">Nam</option>
-                <option value="Female">Nữ</option>
-            </select>
 
-            <label><i class="fas fa-user-tie"></i> Khách hàng cao tuổi (Senior Citizen):</label>
-            <select name="SeniorCitizen">
-                <option value="0">Không</option>
-                <option value="1">Có</option>
-            </select>
+                <label><i class="fas fa-user-tie"></i> Khách hàng cao tuổi (Senior Citizen):</label>
+                <select name="SeniorCitizen">
+                    <option value="0">Không</option>
+                    <option value="1">Có</option>
+                </select>
 
-            <label><i class="fas fa-handshake"></i> Có đối tác (Partner):</label>
-            <select name="Partner">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-handshake"></i> Có đối tác (Partner):</label>
+                <select name="Partner">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-users"></i> Có người phụ thuộc (Dependents):</label>
-            <select name="Dependents">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-users"></i> Có người phụ thuộc (Dependents):</label>
+                <select name="Dependents">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-calendar-alt"></i> Thời gian sử dụng (tháng) (Tenure):</label>
-            <input type="text" name="tenure" required>
+                <label><i class="fas fa-calendar-alt"></i> Thời gian sử dụng (tháng) (Tenure):</label>
+                <input type="text" name="tenure" required pattern="[0-9]+" title="Vui lòng nhập số.">
 
-            <label><i class="fas fa-phone"></i> Dịch vụ điện thoại (PhoneService):</label>
-            <select name="PhoneService">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-phone"></i> Dịch vụ điện thoại (PhoneService):</label>
+                <select name="PhoneService">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-phone-volume"></i> Nhiều đường dây (MultipleLines):</label>
-            <select name="MultipleLines">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-phone-volume"></i> Nhiều đường dây (MultipleLines):</label>
+                <select name="MultipleLines">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-wifi"></i> Dịch vụ Internet (InternetService):</label>
-            <select name="InternetService">
-                <option value="DSL">DSL</option>
-                <option value="Fiber optic">Fiber optic</option>
-                <option value="No">Không có</option>
-            </select>
+                <label><i class="fas fa-wifi"></i> Dịch vụ Internet (InternetService):</label>
+                <select name="InternetService">
+                    <option value="DSL">DSL</option>
+                    <option value="Fiber optic">Fiber optic</option>
+                    <option value="No">Không có</option>
+                </select>
 
-            <label> <i class="fas fa-shield-alt"></i>Bảo mật trực tuyến (OnlineSecurity):</label>
-            <select name="OnlineSecurity">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label> <i class="fas fa-shield-alt"></i>Bảo mật trực tuyến (OnlineSecurity):</label>
+                <select name="OnlineSecurity">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-cloud-upload-alt"></i> Sao lưu trực tuyến (OnlineBackup):</label>
-            <select name="OnlineBackup">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-cloud-upload-alt"></i> Sao lưu trực tuyến (OnlineBackup):</label>
+                <select name="OnlineBackup">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-laptop-house"></i> Bảo vệ thiết bị (DeviceProtection):</label>
-            <select name="DeviceProtection">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-laptop-house"></i> Bảo vệ thiết bị (DeviceProtection):</label>
+                <select name="DeviceProtection">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-headset"></i> Hỗ trợ kỹ thuật (TechSupport):</label>
-            <select name="TechSupport">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-headset"></i> Hỗ trợ kỹ thuật (TechSupport):</label>
+                <select name="TechSupport">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-tv"></i> Truyền hình trực tuyến (StreamingTV):</label>
-            <select name="StreamingTV">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-tv"></i> Truyền hình trực tuyến (StreamingTV):</label>
+                <select name="StreamingTV">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-film"></i> Phim trực tuyến (StreamingMovies):</label>
-            <select name="StreamingMovies">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-film"></i> Phim trực tuyến (StreamingMovies):</label>
+                <select name="StreamingMovies">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-file-contract"></i> Loại hợp đồng (Contract):</label>
-            <select name="Contract">
-                <option value="Month-to-month">Month-to-Month</option>
-                <option value="One year">One Year</option>
-                <option value="Two year">Two Year</option>
-            </select>
+                <label><i class="fas fa-file-contract"></i> Loại hợp đồng (Contract):</label>
+                <select name="Contract">
+                    <option value="Month-to-month">Month-to-Month</option>
+                    <option value="One year">One year</option>
+                    <option value="Two year">Two Year</option>
+                </select>
 
-            <label><i class="fas fa-file-invoice"></i> Hóa đơn điện tử (PaperlessBilling):</label>
-            <select name="PaperlessBilling">
-                <option value="No">Không</option>
-                <option value="Yes">Có</option>
-            </select>
+                <label><i class="fas fa-file-invoice"></i> Hóa đơn điện tử (PaperlessBilling):</label>
+                <select name="PaperlessBilling">
+                    <option value="No">Không</option>
+                    <option value="Yes">Có</option>
+                </select>
 
-            <label><i class="fas fa-money-check-alt"></i> Phương thức thanh toán (PaymentMethod):</label>
-            <select name="PaymentMethod">
-                <option value="Electronic check">Electronic Check</option>
-                <option value="Mailed check">Mailed Check</option>
-                <option value="Bank transfer (automatic)">Bank Transfer</option>
-                <option value="Credit card (automatic)">Credit Card</option>
-            </select>
+                <label><i class="fas fa-money-check-alt"></i> Phương thức thanh toán (PaymentMethod):</label>
+                <select name="PaymentMethod">
+                    <option value="Electronic check">Electronic Check</option>
+                    <option value="Mailed check">Mailed Check</option>
+                    <option value="Bank transfer (automatic)">Bank Transfer</option>
+                    <option value="Credit card (automatic)">Credit Card</option>
+                </select>
 
-            <label><i class="fas fa-dollar-sign"></i> Chi phí hàng tháng (MonthlyCharges):</label>
-            <input type="text" name="MonthlyCharges" required>
+                <label><i class="fas fa-dollar-sign"></i> Chi phí hàng tháng (MonthlyCharges):</label>
+                <input type="text" name="MonthlyCharges" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
-            <label><i class="fas fa-file-invoice-dollar"></i> Tổng chi phí đã thanh toán (TotalCharges):</label>
-            <input type="text" name="TotalCharges" required>
+                <label><i class="fas fa-file-invoice-dollar"></i> Tổng chi phí đã thanh toán (TotalCharges):</label>
+                <input type="text" name="TotalCharges" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
-            <button type="submit"><i class="fas fa-search"></i> Dự đoán</button>
-        </form>
-        {% endif %}
+                <button type="submit"><i class="fas fa-search"></i> Dự đoán</button>
+            </form>
+        </div>
+
+        <div id="segmentation" class="tab-content {% if active_form == 'segmentation' %}active{% endif %}">
+            <h2><i class="fas fa-chart-pie"></i> Phân khúc Khách hàng</h2>
+            {% if segmentation_text %}
+            <h3>{{ segmentation_text }}</h3>
+            {% endif %}
+            <form id="'segmentation" action="/predict-segmentation" method="post">
+                <!-- Form cho phân khúc khách hàng -->
+                <label><i class="fas fa-history"></i> Recency (Số ngày kể từ lần mua gần nhất):</label>
+                <input type="number" name="Recency" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <label><i class="fas fa-shopping-cart"></i> NumWebPurchases (Số lần mua hàng qua website):</label>
+                <input type="number" name="NumWebPurchases" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <label><i class="fas fa-store"></i> NumStorePurchases (Số lần mua hàng tại cửa hàng):</label>
+                <input type="number" name="NumStorePurchases" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <label><i class="fas fa-book"></i> NumCatalogPurchases (Số lần mua hàng qua catalog):</label>
+                <input type="number" name="NumCatalogPurchases" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <label><i class="fas fa-money-bill"></i> Income (Thu nhập):</label>
+                <input type="number" name="Income" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <h3>Các khoản đã chi tiêu</h3>
+                <label><i class="fas fa-wine-glass"></i> MntWines (Chi cho Rượu):</label>
+                <input type="number" name="MntWines" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <label><i class="fas fa-drumstick-bite"></i> MntMeatProducts (Chi cho Thịt):</label>
+                <input type="number" name="MntMeatProducts" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <label><i class="fas fa-fish"></i> MntFishProducts (Chi cho Cá):</label>
+                <input type="number" name="MntFishProducts" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <label><i class="fas fa-candy-cane"></i> MntSweetProducts (Chi cho Đồ Ngọt):</label>
+                <input type="number" name="MntSweetProducts" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <label><i class="fas fa-ring"></i> MntGoldProds (Chi cho Đồ Trang Sức):</label>
+                <input type="number" name="MntGoldProds" required pattern="[0-9]+" title="Vui lòng nhập số.">
+
+                <button type="submit"><i class="fas fa-search"></i> Phân tích</button>
+            </form>
+        </div>
     </div>
-    <script>
-        function resetForm() {
-            window.location.href = "/";
-        }
-    </script>
     <footer>
-        <a href="https://github.com/LamBaNguyen/prediction_churn_customer" `> © 2025 Churn Prediction built by NBL.</a>
+        <a href="#">© 2025 NBL. All rights reserved.</a>
     </footer>
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Deactivate all tabs and tab contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // Activate the clicked tab and its content
+                tab.classList.add('active');
+                const tabContentId = tab.dataset.tab;
+                document.getElementById(tabContentId).classList.add('active');
+            });
+        });
+
+    </script>
 </body>
 
 </html>
