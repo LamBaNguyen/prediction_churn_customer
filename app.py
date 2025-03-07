@@ -5,6 +5,7 @@ import pandas as pd
 import plotly
 import plotly.express as px
 import json
+import os
 
 app = Flask(__name__)
 
@@ -148,4 +149,4 @@ def predict():
         return render_template('index.html', prediction_text="Đã xảy ra lỗi. Vui lòng kiểm tra lại thông tin nhập vào.")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
