@@ -28,7 +28,7 @@
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 40px;
+            padding: 50px;
             width: 90%;
             max-width: 800px;
             /* Tăng chiều rộng container */
@@ -208,9 +208,10 @@
                 <div class="form-row"> <!-- Thêm div để chứa label và select -->
                     <label for="model_choice"><i class="fas fa-project-diagram"></i> Mô hình dự đoán:</label>
                     <select name="model_choice" id="model_choice">
-                        <option value="random_forest" {% if selected_model=='random_forest' or not selected_model %}selected{%
-                            endif %}>Random Forest</option>
-                        <option value="logistic" {% if selected_model=='logistic' %}selected{% endif %}>Logistic Regression</option>
+                        <option value="random_forest" {% if selected_model=='random_forest' or not selected_model
+                            %}selected{% endif %}>Random Forest</option>
+                        <option value="logistic" {% if selected_model=='logistic' %}selected{% endif %}>Logistic
+                            Regression</option>
                     </select>
                 </div>
 
@@ -239,7 +240,7 @@
                 </select>
 
                 <label><i class="fas fa-calendar-alt"></i> Thời gian sử dụng (tháng) (Tenure):</label>
-                <input type="text" name="tenure" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                <input type="text" name="tenure" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                 <label><i class="fas fa-phone"></i> Dịch vụ điện thoại (PhoneService):</label>
                 <select name="PhoneService">
@@ -318,11 +319,14 @@
                 </select>
 
                 <label><i class="fas fa-dollar-sign"></i> Chi phí hàng tháng (MonthlyCharges):</label>
-                <input type="text" name="MonthlyCharges" required pattern="[0-9.]+" title="Vui lòng nhập số.">
+                <input type="text" id="MonthlyCharges" name="MonthlyCharges" required pattern="[0-9.]+"
+                    title="Vui lòng nhập số." oninput="checkTotalCharges()">
 
                 <label><i class="fas fa-file-invoice-dollar"></i> Tổng chi phí đã thanh toán (TotalCharges):</label>
-                <input type="text" name="TotalCharges" required pattern="[0-9.]+" title="Vui lòng nhập số.">
+                <input type="text" id="TotalCharges" name="TotalCharges" required pattern="[0-9.]+"
+                    title="Vui lòng nhập số." oninput="checkTotalCharges()">
 
+                <p id="error-message" style="color: red;"></p>
                 <button type="submit"><i class="fas fa-search"></i> Dự đoán</button>
             </form>
         </div>
@@ -347,45 +351,45 @@
                     {% endif %}>
                     <h3>Thông tin hành vi</h3>
                     <label><i class="fas fa-history"></i> Recency (Số ngày kể từ lần mua gần nhất):</label>
-                    <input type="number" name="Recency" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="Recency" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <label><i class="fas fa-shopping-cart"></i> NumWebPurchases (Số lần mua hàng qua website):</label>
-                    <input type="number" name="NumWebPurchases" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="NumWebPurchases" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <label><i class="fas fa-store"></i> NumStorePurchases (Số lần mua hàng tại cửa hàng):</label>
-                    <input type="number" name="NumStorePurchases" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="NumStorePurchases" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <label><i class="fas fa-book"></i> NumCatalogPurchases (Số lần mua hàng qua catalog):</label>
-                    <input type="number" name="NumCatalogPurchases" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="NumCatalogPurchases" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <label><i class="fas fa-money-bill"></i> Thu nhập:</label>
-                    <input type="number" name="Income" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="Income" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <h3>Các khoản đã chi tiêu</h3>
                     <label><i class="fas fa-wine-glass"></i> MntWines (Chi cho Rượu):</label>
-                    <input type="number" name="MntWines" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="MntWines" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <label><i class="fas fa-drumstick-bite"></i> MntMeatProducts (Chi cho Thịt):</label>
-                    <input type="number" name="MntMeatProducts" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="MntMeatProducts" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <label><i class="fas fa-fish"></i> MntFishProducts (Chi cho Cá):</label>
-                    <input type="number" name="MntFishProducts" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="MntFishProducts" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <label><i class="fas fa-candy-cane"></i> MntSweetProducts (Chi cho Đồ Ngọt):</label>
-                    <input type="number" name="MntSweetProducts" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="MntSweetProducts" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <label><i class="fas fa-ring"></i> MntGoldProds (Chi cho Đồ Trang Sức):</label>
-                    <input type="number" name="MntGoldProds" pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="MntGoldProds" required pattern="[0-9.]+" title="Vui lòng nhập số.">
                 </div>
 
                 <div id="demographic_segmentation_fields" {% if segmentation_choice=='behavior' %}style="display:none;"
                     {% endif %}>
                     <h3>Thông tin nhân khẩu học</h3>
                     <label><i class="fas fa-birthday-cake"></i> Độ tuổi:</label>
-                    <input type="number" name="Customer_Age" prequired pattern="[0-9.]+" title="Vui lòng nhập số.">
+                    <input type="text" name="Customer_Age" prequired pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                     <label><i class="fas fa-money-bill"></i> Thu nhập:</label>
-                    <input type="number" name="Income" prequired pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <input type="text" name="Income" required pattern="[0-9.]+" title="Vui lòng nhập số.">
                     <label><i class="fas fa-graduation-cap"></i> Trình độ học vấn:</label>
                     <select name="Education">
                         <option value="Graduation">Tốt nghiệp đại học</option>
@@ -457,6 +461,16 @@
         segmentationChoice.addEventListener('change', toggleSegmentationFields);
         // Initial toggle in case a segmentation is selected on page load
         toggleSegmentationFields();
+        function checkTotalCharges() {
+            var monthly = parseFloat(document.getElementById("MonthlyCharges").value);
+            var total = parseFloat(document.getElementById("TotalCharges").value);
+
+            if (total < monthly) {
+                document.getElementById("error-message").innerHTML = "❌ Tổng chi phí không được nhỏ hơn chi phí hàng tháng!";
+            } else {
+                document.getElementById("error-message").innerHTML = "";
+            }
+        }
 
     </script>
 </body>
