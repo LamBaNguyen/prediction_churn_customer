@@ -18,8 +18,13 @@ try:
     scaler = pickle.load(open('scaler.pkl', 'rb'))
     scaler_columns = pickle.load(open('scaler_columns.pkl', 'rb'))
     model_columns = pickle.load(open('model_columns.pkl', 'rb'))
-    model_segmentation = pickle.load(open('model_segmentation.pkl', 'rb'))
-    scaler_segmentation = pickle.load(open('scaler_segmentation.pkl', 'rb'))
+
+    model_segmentation_behavior = pickle.load(open('model_segmentation_behavior.pkl', 'rb'))
+    scaler_segmentation_behavior = pickle.load(open('scaler_segmentation_behavior.pkl', 'rb'))
+    label_encoder_behavior = pickle.load(open('label_encoder_behavior.pkl', 'rb'))
+
+    model_segmentation_demographic = pickle.load(open('model_segmentation_demographic.pkl', 'rb'))
+    scaler_segmentation_demographic = pickle.load(open('scaler_segmentation_demographic.pkl', 'rb'))
 
     logging.info("Đã load thành công các model và scaler.")
 
@@ -74,35 +79,64 @@ def predict_churn(model, df_input):
         logging.error(f"Lỗi trong predict_churn: {e}")
         raise
 
-def preprocess_segmentation_input(df_input):
+def preprocess_segmentation_input(df_input, segmentation_choice):
     try:
-        # Chuyển đổi kiểu dữ liệu
-        df_input["Recency"] = df_input["Recency"].astype(float)
-        df_input["NumWebPurchases"] = df_input["NumWebPurchases"].astype(float)
-        df_input["NumStorePurchases"] = df_input["NumStorePurchases"].astype(float)
-        df_input["NumCatalogPurchases"] = df_input["NumCatalogPurchases"].astype(float)
-        df_input["Income"] = df_input["Income"].astype(float)
-        df_input["MntWines"] = df_input["MntWines"].astype(float)
-        df_input["MntMeatProducts"] = df_input["MntMeatProducts"].astype(float)
-        df_input["MntFishProducts"] = df_input["MntFishProducts"].astype(float)
-        df_input["MntSweetProducts"] = df_input["MntSweetProducts"].astype(float)
-        df_input["MntGoldProds"] = df_input["MntGoldProds"].astype(float)
+        if segmentation_choice == 'behavior':
+            # Chuyển đổi kiểu dữ liệu
+            if 'Recency' in df_input.columns:
+                df_input["Recency"] = df_input["Recency"].astype(float)
+            if 'NumWebPurchases' in df_input.columns:
+                df_input["NumWebPurchases"] = df_input["NumWebPurchases"].astype(float)
+            if 'NumStorePurchases' in df_input.columns:
+                df_input["NumStorePurchases"] = df_input["NumStorePurchases"].astype(float)
+            if 'NumCatalogPurchases' in df_input.columns:
+                df_input["NumCatalogPurchases"] = df_input["NumCatalogPurchases"].astype(float)
+            if 'MntWines' in df_input.columns:
+                df_input["MntWines"] = df_input["MntWines"].astype(float)
+            if 'MntMeatProducts' in df_input.columns:
+                df_input["MntMeatProducts"] = df_input["MntMeatProducts"].astype(float)
+            if 'MntFishProducts' in df_input.columns:
+                df_input["MntFishProducts"] = df_input["MntFishProducts"].astype(float)
+            if 'MntSweetProducts' in df_input.columns:
+                df_input["MntSweetProducts"] = df_input["MntSweetProducts"].astype(float)
+            if 'MntGoldProds' in df_input.columns:
+                df_input["MntGoldProds"] = df_input["MntGoldProds"].astype(float)
+            # Tạo trường Frequency và Monetary (tùy thuộc vào mô hình của bạn)
+            df_input["Frequency"] = df_input["NumWebPurchases"] + df_input["NumStorePurchases"] + df_input["NumCatalogPurchases"]
+            df_input["Monetary"] = df_input["MntWines"] + df_input["MntMeatProducts"] + df_input["MntFishProducts"] + df_input["MntSweetProducts"] + df_input["MntGoldProds"]
+            # Chọn các features cần thiết
+            features_segmentation_behavior = ['Recency', 'Frequency', 'Monetary']
+            df_input = df_input[features_segmentation_behavior]
 
-        # Tạo trường Frequency và Monetary (tùy thuộc vào mô hình của bạn)
-        df_input["Frequency"] = df_input["NumWebPurchases"] + df_input["NumStorePurchases"] + df_input["NumCatalogPurchases"]
-        df_input["Monetary"] = df_input["MntWines"] + df_input["MntMeatProducts"] + df_input["MntFishProducts"] + df_input["MntSweetProducts"] + df_input["MntGoldProds"]
-        # Chọn các features cần thiết
-        features_segmentation = ['Recency', 'Frequency', 'Monetary', 'NumWebPurchases', 'NumStorePurchases', 'NumCatalogPurchases', 'Income']
-        df_input = df_input[features_segmentation]
+            # Scale dữ liệu
+            df_scaled = scaler_segmentation_behavior.transform(df_input)
+            df_scaled = pd.DataFrame(df_scaled, columns=features_segmentation_behavior, index=df_input.index)
+            return df_scaled
+        elif segmentation_choice == 'demographic':
+            # Chuyển đổi kiểu dữ liệu
+            if 'Customer_Age' in df_input.columns:
+                df_input["Customer_Age"] = df_input["Customer_Age"].astype(float)
+            if 'Income' in df_input.columns:
+                df_input["Income"] = df_input["Income"].astype(float)
+            
+            df_input = pd.get_dummies(df_input, columns=["Education", "Marital_Status"])
 
-        # Scale dữ liệu
-        df_scaled = scaler_segmentation.transform(df_input)
-        df_scaled = pd.DataFrame(df_scaled, columns=features_segmentation, index=df_input.index)
-        return df_scaled
+            # Danh sách cột chính xác từ lúc huấn luyện
+            expected_columns = ["Customer_Age", "Income", "Education_Basic", "Education_Graduation",
+                                "Education_Master", "Education_PhD", "Marital_Status_Separated", "Marital_Status_Single"]
+
+            # Thêm các cột bị thiếu và đặt giá trị mặc định là 0
+            for col in expected_columns:
+                if col not in df_input.columns:
+                    df_input[col] = 0
+
+            df_scaled = scaler_segmentation_demographic.transform(df_input[expected_columns])
+            df_scaled = pd.DataFrame(df_scaled, columns=expected_columns, index=df_input.index)
+
+            return df_scaled
     except Exception as e:
         logging.error(f"Lỗi trong preprocess_segmentation_input: {e}")
         raise
-
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -174,37 +208,55 @@ def predict_segmentation_route():
 
         # 1. Lấy dữ liệu từ form
         user_input = request.form.to_dict()
+        # Lấy tiêu chí phân khúc được chọn từ form
+        segmentation_choice = request.form.get('segmentation_choice', 'behavior')
+        # Xác định các trường cần kiểm tra theo loại phân khúc
+        required_fields = {
+            'behavior': ['Recency', 'NumWebPurchases', 'NumStorePurchases', 'NumCatalogPurchases',
+                         'MntWines', 'MntMeatProducts', 'MntFishProducts', 'MntSweetProducts', 'MntGoldProds'],
+            'demographic': ['Customer_Age', 'Income', 'Education', 'Marital_Status']
+        }
+
+        # Kiểm tra xem có thiếu dữ liệu không
+        for field in required_fields[segmentation_choice]:
+            if field not in user_input or user_input[field].strip() == '':
+                return render_template('index.html', segmentation_text=f"Lỗi: Vui lòng nhập giá trị cho {field}.", prediction_text=None, selected_model=None)
+
+        # Chuyển dữ liệu thành DataFrame
         df_input = pd.DataFrame([user_input])
 
-        # 2. Tiền xử lý dữ liệu phân khúc
-        df_scaled = preprocess_segmentation_input(df_input.copy())
+        # Tiền xử lý dữ liệu
+        df_scaled = preprocess_segmentation_input(df_input.copy(), segmentation_choice)
 
-        # 3. Dự đoán phân khúc
-        cluster = model_segmentation.predict(df_scaled)[0]
-        segment_labels = {0: "Khách hàng bình dân", 1: "Khách hàng trung cấp", 2: "Khách hàng VIP"}
+        # Phân khúc khách hàng
+        if segmentation_choice == 'behavior':
+            cluster = model_segmentation_behavior.predict(df_scaled)[0]
+            segment_label = label_encoder_behavior.inverse_transform([cluster])[0]
+            segment_labels = {0: "Khách hàng mới", 1: "Sắp rời bỏ",2: "Trung bình", 3: "Khách hàng VIP"}
+            # In danh sách giá trị gốc và giá trị sau khi encode
+            # for i, label in enumerate(label_encoder_behavior.classes_):
+            #     print(f"Giá trị ban đầu: {label} -> Giá trị mã hóa: {i}")
+            segment_text = f"Khách hàng thuộc nhóm: {segment_label}"
+            logging.info(f"Input data for segmentation: {df_scaled}")
+            logging.info(f"Predicted cluster: {cluster}, Decoded segment: {segment_label}")
+
+        else:
+            cluster = model_segmentation_demographic.predict(df_scaled)[0]
+            segment_labels = {0: "Trẻ", 1: "Trung niên", 2: "Cao cấp"}
+
         segment_text = f"Khách hàng thuộc nhóm: {segment_labels.get(cluster, 'Không xác định')}"
-
         logging.info(f"Phân khúc khách hàng thành công: {segment_text}")
 
-        # 4. Render template
         return render_template(
-            'index.html', 
-            prediction_text=None, 
-            segmentation_text=segment_text, 
-            selected_model=None, 
+            'index.html',
+            prediction_text=None,
+            segmentation_text=segment_text,
+            selected_model=None,
             active_form="segmentation"
         )
 
-
-    except KeyError as e:
-        logging.error(f"Thiếu key trong request: {e}")
-        return render_template('index.html', segmentation_text=f"Lỗi: Thiếu thông tin {e}.", prediction_text=None, selected_model=None)
-    except ValueError as e:
-        logging.error(f"Giá trị không hợp lệ: {e}")
-        return render_template('index.html', segmentation_text=f"Lỗi: Giá trị không hợp lệ {e}.", prediction_text=None, selected_model=None)
     except Exception as e:
-        logging.exception("Lỗi không xác định trong quá trình phân khúc.")
+        logging.exception("Lỗi trong quá trình phân khúc.")
         return render_template('index.html', segmentation_text="Đã xảy ra lỗi. Vui lòng kiểm tra lại thông tin nhập vào.", prediction_text=None, selected_model=None)
-
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

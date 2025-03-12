@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dự đoán Churn và Phân khúc Khách hàng</title>
+    <title>Customer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -193,7 +193,8 @@
     <div class="container">
         <div class="tabs">
             <div class="tab {% if active_form == 'churn' %}active{% endif %}" data-tab="churn">Dự đoán Churn</div>
-            <div class="tab {% if active_form == 'segmentation' %}active{% endif %}" data-tab="segmentation">Phân khúc Khách hàng</div>
+            <div class="tab {% if active_form == 'segmentation' %}active{% endif %}" data-tab="segmentation">Phân khúc
+                Khách hàng</div>
         </div>
 
         <div id="churn" class="tab-content {% if active_form == 'churn' %}active{% endif %}">
@@ -207,10 +208,9 @@
                 <div class="form-row"> <!-- Thêm div để chứa label và select -->
                     <label for="model_choice"><i class="fas fa-project-diagram"></i> Mô hình dự đoán:</label>
                     <select name="model_choice" id="model_choice">
-                        <option value="logistic" {% if selected_model=='logistic' or not selected_model %}selected{%
-                            endif %}>Logistic Regression</option>
-                        <option value="random_forest" {% if selected_model=='random_forest' %}selected{% endif %}>Random
-                            Forest</option>
+                        <option value="random_forest" {% if selected_model=='random_forest' or not selected_model %}selected{%
+                            endif %}>Random Forest</option>
+                        <option value="logistic" {% if selected_model=='logistic' %}selected{% endif %}>Logistic Regression</option>
                     </select>
                 </div>
 
@@ -333,37 +333,80 @@
             <h3>{{ segmentation_text }}</h3>
             {% endif %}
             <form id="'segmentation" action="/predict-segmentation" method="post">
+                <div class="form-row"> <!-- Thêm div để chứa label và select -->
+                    <label for="segmentation_choice"><i class="fas fa-project-diagram"></i> Tiêu chí phân khúc:</label>
+                    <select name="segmentation_choice" id="segmentation_choice">
+                        <option value="behavior" {% if segmentation_choice=='behavior' or not segmentation_choice
+                            %}selected{% endif %}>Hành vi mua sắm</option>
+                        <option value="demographic" {% if segmentation_choice=='demographic' %}selected{% endif %}>Nhân
+                            khẩu học</option>
+                    </select>
+                </div>
                 <!-- Form cho phân khúc khách hàng -->
-                <label><i class="fas fa-history"></i> Recency (Số ngày kể từ lần mua gần nhất):</label>
-                <input type="number" name="Recency" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                <div id="behavior_segmentation_fields" {% if segmentation_choice=='demographic' %}style="display:none;"
+                    {% endif %}>
+                    <h3>Thông tin hành vi</h3>
+                    <label><i class="fas fa-history"></i> Recency (Số ngày kể từ lần mua gần nhất):</label>
+                    <input type="number" name="Recency" pattern="[0-9]+" title="Vui lòng nhập số.">
 
-                <label><i class="fas fa-shopping-cart"></i> NumWebPurchases (Số lần mua hàng qua website):</label>
-                <input type="number" name="NumWebPurchases" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <label><i class="fas fa-shopping-cart"></i> NumWebPurchases (Số lần mua hàng qua website):</label>
+                    <input type="number" name="NumWebPurchases" pattern="[0-9]+" title="Vui lòng nhập số.">
 
-                <label><i class="fas fa-store"></i> NumStorePurchases (Số lần mua hàng tại cửa hàng):</label>
-                <input type="number" name="NumStorePurchases" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <label><i class="fas fa-store"></i> NumStorePurchases (Số lần mua hàng tại cửa hàng):</label>
+                    <input type="number" name="NumStorePurchases" pattern="[0-9]+" title="Vui lòng nhập số.">
 
-                <label><i class="fas fa-book"></i> NumCatalogPurchases (Số lần mua hàng qua catalog):</label>
-                <input type="number" name="NumCatalogPurchases" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <label><i class="fas fa-book"></i> NumCatalogPurchases (Số lần mua hàng qua catalog):</label>
+                    <input type="number" name="NumCatalogPurchases" pattern="[0-9]+" title="Vui lòng nhập số.">
 
-                <label><i class="fas fa-money-bill"></i> Income (Thu nhập):</label>
-                <input type="number" name="Income" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <label><i class="fas fa-money-bill"></i> Thu nhập:</label>
+                    <input type="number" name="Income" pattern="[0-9]+" title="Vui lòng nhập số.">
 
-                <h3>Các khoản đã chi tiêu</h3>
-                <label><i class="fas fa-wine-glass"></i> MntWines (Chi cho Rượu):</label>
-                <input type="number" name="MntWines" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <h3>Các khoản đã chi tiêu</h3>
+                    <label><i class="fas fa-wine-glass"></i> MntWines (Chi cho Rượu):</label>
+                    <input type="number" name="MntWines" pattern="[0-9]+" title="Vui lòng nhập số.">
 
-                <label><i class="fas fa-drumstick-bite"></i> MntMeatProducts (Chi cho Thịt):</label>
-                <input type="number" name="MntMeatProducts" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <label><i class="fas fa-drumstick-bite"></i> MntMeatProducts (Chi cho Thịt):</label>
+                    <input type="number" name="MntMeatProducts" pattern="[0-9]+" title="Vui lòng nhập số.">
 
-                <label><i class="fas fa-fish"></i> MntFishProducts (Chi cho Cá):</label>
-                <input type="number" name="MntFishProducts" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <label><i class="fas fa-fish"></i> MntFishProducts (Chi cho Cá):</label>
+                    <input type="number" name="MntFishProducts" pattern="[0-9]+" title="Vui lòng nhập số.">
 
-                <label><i class="fas fa-candy-cane"></i> MntSweetProducts (Chi cho Đồ Ngọt):</label>
-                <input type="number" name="MntSweetProducts" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <label><i class="fas fa-candy-cane"></i> MntSweetProducts (Chi cho Đồ Ngọt):</label>
+                    <input type="number" name="MntSweetProducts" pattern="[0-9]+" title="Vui lòng nhập số.">
 
-                <label><i class="fas fa-ring"></i> MntGoldProds (Chi cho Đồ Trang Sức):</label>
-                <input type="number" name="MntGoldProds" required pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <label><i class="fas fa-ring"></i> MntGoldProds (Chi cho Đồ Trang Sức):</label>
+                    <input type="number" name="MntGoldProds" pattern="[0-9]+" title="Vui lòng nhập số.">
+                </div>
+
+                <div id="demographic_segmentation_fields" {% if segmentation_choice=='behavior' %}style="display:none;"
+                    {% endif %}>
+                    <h3>Thông tin nhân khẩu học</h3>
+                    <label><i class="fas fa-birthday-cake"></i> Độ tuổi:</label>
+                    <input type="number" name="Customer_Age" prequired pattern="[0-9.]+" title="Vui lòng nhập số.">
+
+                    <label><i class="fas fa-money-bill"></i> Thu nhập:</label>
+                    <input type="number" name="Income" prequired pattern="[0-9]+" title="Vui lòng nhập số.">
+                    <label><i class="fas fa-graduation-cap"></i> Trình độ học vấn:</label>
+                    <select name="Education">
+                        <option value="Graduation">Tốt nghiệp đại học</option>
+                        <option value="PhD">Tiến sĩ</option>
+                        <option value="Master">Thạc sĩ</option>
+                        <option value="Basic">Cơ bản</option>
+                        <option value="2n Cycle">2n Cycle</option>
+                    </select>
+
+                    <label><i class="fas fa-heart"></i> Marital_Status:</label>
+                    <select name="Marital_Status" id="Marital_Status">
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
+                        <option value="Divorced">Divorced</option>
+                        <option value="Widow">Widow</option>
+                        <option value="Together">Together</option>
+                        <option value="Alone">Alone</option>
+                        <option value="YOLO">YOLO</option>
+                        <option value="Absurd">Absurd</option>
+                    </select>
+                </div>
 
                 <button type="submit"><i class="fas fa-search"></i> Phân tích</button>
             </form>
@@ -388,6 +431,32 @@
                 document.getElementById(tabContentId).classList.add('active');
             });
         });
+
+        const segmentationChoice = document.getElementById('segmentation_choice');
+        const behaviorFields = document.getElementById('behavior_segmentation_fields');
+        const demographicFields = document.getElementById('demographic_segmentation_fields');
+
+        function toggleSegmentationFields() {
+            if (segmentationChoice.value === 'behavior') {
+                behaviorFields.style.display = 'block';
+                demographicFields.style.display = 'none';
+
+                // Enable behavior fields, disable demographic fields
+                behaviorFields.querySelectorAll("input, select").forEach(el => el.disabled = false);
+                demographicFields.querySelectorAll("input, select").forEach(el => el.disabled = true);
+            } else {
+                behaviorFields.style.display = 'none';
+                demographicFields.style.display = 'block';
+
+                // Enable demographic fields, disable behavior fields
+                behaviorFields.querySelectorAll("input, select").forEach(el => el.disabled = true);
+                demographicFields.querySelectorAll("input, select").forEach(el => el.disabled = false);
+            }
+        }
+
+        segmentationChoice.addEventListener('change', toggleSegmentationFields);
+        // Initial toggle in case a segmentation is selected on page load
+        toggleSegmentationFields();
 
     </script>
 </body>
