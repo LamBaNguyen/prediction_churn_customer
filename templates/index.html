@@ -240,7 +240,7 @@
                 </select>
 
                 <label><i class="fas fa-calendar-alt"></i> Thời gian sử dụng (tháng) (Tenure):</label>
-                <input type="text" name="tenure" required pattern="[0-9.]+" title="Vui lòng nhập số.">
+                <input type="text" id="tenure" name="tenure" required pattern="[0-9.]+" title="Vui lòng nhập số.">
 
                 <label><i class="fas fa-phone"></i> Dịch vụ điện thoại (PhoneService):</label>
                 <select name="PhoneService">
@@ -327,7 +327,7 @@
                     title="Vui lòng nhập số." oninput="checkTotalCharges()">
 
                 <p id="error-message" style="color: red;"></p>
-                <button type="submit"><i class="fas fa-search"></i> Dự đoán</button>
+                <button type="submit" id="submit_predict"><i class="fas fa-search"></i> Dự đoán</button>
             </form>
         </div>
 
@@ -386,7 +386,9 @@
                     {% endif %}>
                     <h3>Thông tin nhân khẩu học</h3>
                     <label><i class="fas fa-birthday-cake"></i> Độ tuổi:</label>
-                    <input type="text" name="Customer_Age" prequired pattern="[0-9.]+" title="Vui lòng nhập số.">
+                    <input type="text" id="Customer_Age" name="Customer_Age" prequired pattern="[0-9.]+"
+                        title="Vui lòng nhập số." oninput="checkAge()">
+                    <p id="error-message-age" style="color: red;"></p>
 
                     <label><i class="fas fa-money-bill"></i> Thu nhập:</label>
                     <input type="text" name="Income" required pattern="[0-9.]+" title="Vui lòng nhập số.">
@@ -412,7 +414,7 @@
                     </select>
                 </div>
 
-                <button type="submit"><i class="fas fa-search"></i> Phân tích</button>
+                <button type="submit" id="submit_analysis"><i class="fas fa-search"></i> Phân tích</button>
             </form>
         </div>
     </div>
@@ -462,15 +464,76 @@
         // Initial toggle in case a segmentation is selected on page load
         toggleSegmentationFields();
         function checkTotalCharges() {
+            var submitbutton = document.getElementById("submit_predict");
+            var permonth = parseFloat(document.getElementById("tenure").value);
             var monthly = parseFloat(document.getElementById("MonthlyCharges").value);
             var total = parseFloat(document.getElementById("TotalCharges").value);
+            var totalcharges = permonth * monthly;
 
             if (total < monthly) {
                 document.getElementById("error-message").innerHTML = "❌ Tổng chi phí không được nhỏ hơn chi phí hàng tháng!";
+                submitbutton.disabled = true;
+                submitbutton.style.opacity = '0.5';
+            } else if (total > totalcharges) {
+                document.getElementById("error-message").innerHTML = "❌ Tổng chi phí bạn nhập không hợp lý";
+                submitbutton.disabled = true;
+                submitbutton.style.opacity = '0.5';
             } else {
                 document.getElementById("error-message").innerHTML = "";
+                submitbutton.disabled = false;
+                submitbutton.style.opacity = '1';
             }
+
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            var segmentationChoice = document.getElementById("segmentation_choice");
+            var behaviorFields = document.getElementById("behavior_segmentation_fields");
+            var demographicFields = document.getElementById("demographic_segmentation_fields");
+            var submitButton = document.getElementById("submit_analysis");
+            var ageInput = document.getElementById("Customer_Age");
+            var errorMessage = document.getElementById("error-message-age");
+
+            // 1️⃣ Khi thay đổi tiêu chí phân khúc, hiển thị đúng form và reset lỗi
+            segmentationChoice.addEventListener("change", function () {
+                if (segmentationChoice.value === "behavior") {
+                    behaviorFields.style.display = "block";
+                    demographicFields.style.display = "none";
+                } else {
+                    behaviorFields.style.display = "none";
+                    demographicFields.style.display = "block";
+                }
+                resetFormState();
+            });
+
+            // 2️⃣ Kiểm tra độ tuổi khi nhập
+            function checkAge() {
+                var age = parseInt(ageInput.value);
+                if (isNaN(age) || age < 18 || age > 100) {
+                    errorMessage.innerText = "❌ Độ tuổi phải từ 18 đến 100!";
+                    submitButton.disabled = true;
+                    submitButton.style.opacity = "0.5";
+                } else {
+                    errorMessage.innerText = "";
+                    submitButton.disabled = false;
+                    submitButton.style.opacity = "1";
+                }
+            }
+
+            ageInput.addEventListener("input", checkAge);
+
+            // 3️⃣ Reset lỗi khi chuyển tiêu chí phân khúc
+            function resetFormState() {
+                errorMessage.innerText = "";  // Xóa thông báo lỗi
+                ageInput.value = "";
+                if (segmentationChoice.value === "demographic") {
+                    submitButton.disabled = true;
+                    submitButton.style.opacity = "0.5";
+                } else {
+                    submitButton.disabled = false;
+                    submitButton.style.opacity = "1";
+                }
+            }
+        });
 
     </script>
 </body>
